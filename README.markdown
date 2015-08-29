@@ -2,6 +2,9 @@
 
 *foundation* is a minimalistic foundation library with functions for memory allocation, data manipulation, etc released under the very permissive MIT license - for your pleasure.
 
+## Continuous Integration Status
+[![Build Status](https://travis-ci.org/blep/bitsquid-foundation-git.svg?branch=evogine)](https://travis-ci.org/blep/bitsquid-foundation-git)
+
 ## Library Design
 
 *foundation* has been written with data-oriented programming in mind (POD data is preferred over complicated classes, flat arrays are the preferred data structure, etc).
