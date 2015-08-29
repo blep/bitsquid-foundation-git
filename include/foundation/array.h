@@ -4,6 +4,7 @@
 #include "memory.h"
 
 #include <memory>
+#include <cstring>
 
 namespace foundation {
 	namespace array
@@ -93,7 +94,7 @@ namespace foundation {
 			T *new_data = 0;
 			if (new_capacity > 0) {
 				new_data = (T *)a._allocator->allocate(sizeof(T)*new_capacity, alignof(T));
-				memcpy(new_data, a._data, sizeof(T)*a._size);
+				std::memcpy(new_data, a._data, sizeof(T)*a._size);
 			}
 			a._allocator->deallocate(a._data);
 			a._data = new_data;
@@ -135,7 +136,7 @@ namespace foundation {
 	{
 		const uint32_t n = other._size;
 		array::set_capacity(*this, n);
-		memcpy(_data, other._data, sizeof(T) * n);
+		std::memcpy(_data, other._data, sizeof(T) * n);
 		_size = n;
 	}
 
@@ -144,7 +145,7 @@ namespace foundation {
 	{
 		const uint32_t n = other._size;
 		array::resize(*this, n);
-		memcpy(_data, other._data, sizeof(T)*n);
+		std::memcpy(_data, other._data, sizeof(T)*n);
 		return *this;
 	}
 
