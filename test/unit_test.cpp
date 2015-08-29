@@ -1,10 +1,10 @@
-#include "queue.h"
-#include "string_stream.h"
-#include "murmur_hash.h"
-#include "hash.h"
-#include "temp_allocator.h"
-#include "array.h"
-#include "memory.h"
+#include <foundation/queue.h>
+#include <foundation/string_stream.h>
+#include <foundation/murmur_hash.h>
+#include <foundation/hash.h>
+#include <foundation/temp_allocator.h>
+#include <foundation/array.h>
+#include <foundation/memory.h>
 
 #include <stdio.h>
 #include <stdlib.h>
