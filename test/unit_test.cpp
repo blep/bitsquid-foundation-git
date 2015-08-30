@@ -12,10 +12,17 @@
 #include <assert.h>
 #include <algorithm>
 
-#define ASSERT(x) assert(x)
+#define ASSERT(x) if ( !(x) ) reportAssertFailure( #x, __FILE__, __LINE__ )
 
 namespace {
 	using namespace foundation;
+
+    void reportAssertFailure( const char *expr, const char *file, int line )
+    {
+        fprintf( stderr, "\n%s(%d): assertion failed:\n%s\n", file, line, expr );
+        fflush( stderr );
+        abort();
+    }
 	
 	void test_memory() {
 		memory_globals::init();
