@@ -12,7 +12,7 @@ language: cpp
 compiler:
   - gcc
   - clang
-script: cmake --version && cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_VERBOSE_MAKEFILE=$VERBOSE_MAKE -DCOVERALLS=$COVERALLS. && make -k all test coveralls
+script: cmake --version && cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_VERBOSE_MAKEFILE=$VERBOSE_MAKE -DCOVERALLS=$COVERALLS. && make all test coveralls
 env:
   global:
     - FOUNDATION_CONTINUOUS_INTERATION=1
