@@ -22,6 +22,8 @@ if (COVERALLS AND (CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX) AND (CMA
         "${COVER_SOURCES}" 
         ${COVERALLS_UPLOAD}                 
         "${CMAKE_CURRENT_SOURCE_DIR}/coveralls-cmake/cmake")
+else()
+    add_custom_target(coveralls)
 endif ()
 
 include(EnableLatestCppStandard)
