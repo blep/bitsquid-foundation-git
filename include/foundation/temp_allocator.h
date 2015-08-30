@@ -31,7 +31,9 @@ namespace foundation
 		virtual uint32_t total_allocated() {return SIZE_NOT_TRACKED;}
 
 	private:
-		char _buffer[BUFFER_SIZE];	//< Local stack buffer for allocations.
+        static_assert( BUFFER_SIZE % sizeof(void *) == 0, "TempAllocator must be a multiple of pointer size" );
+
+		void *_buffer[BUFFER_SIZE/sizeof(void*)];	//< Local stack buffer for allocations.
 		Allocator &_backing;		//< Backing allocator if local memory is exhausted.
 		char *_start;				//< Start of current allocation region
 		char *_p;					//< Current allocation pointer.
@@ -56,7 +58,7 @@ namespace foundation
 	template <int BUFFER_SIZE>
 	TempAllocator<BUFFER_SIZE>::TempAllocator(Allocator &backing) : _backing(backing), _chunk_size(4*1024)
 	{
-		_p = _start = _buffer;
+		_p = _start = reinterpret_cast<char *>(_buffer);
 		_end = _start + BUFFER_SIZE;
 		*(void **)_start = 0;
 		_p += sizeof(void *);
