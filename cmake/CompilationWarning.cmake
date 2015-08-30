@@ -1,5 +1,3 @@
-cmake_policy(SET CMP0054 NEW) # Only variable expand once in if statement.
-
 macro(EnableAllCompilationWarning) 
     if(MSVC)
       # Force to always compile with W4
@@ -17,21 +15,21 @@ endmacro()
 
 # See http://www.cmake.org/cmake/help/v2.8.10/cmake.html#variable:CMAKE_LANG_COMPILER_ID
 # for list of all compilers
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+if ("_${CMAKE_CXX_COMPILER_ID}" STREQUAL "_Clang")
   # using Clang
 	macro(CompilationWarningAsError)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror ") 
 	endmacro()
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+elseif ("_${CMAKE_CXX_COMPILER_ID}" STREQUAL "_GNU")
   # using GCC
 	macro(CompilationWarningAsError)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror ") 
 	endmacro()
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+elseif ("_${CMAKE_CXX_COMPILER_ID}" STREQUAL "_Intel")
   # using Intel C++
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "SunPro")
+elseif ("_${CMAKE_CXX_COMPILER_ID}" STREQUAL "_SunPro")
   # using Oracle Solaris Studio
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+elseif ("_${CMAKE_CXX_COMPILER_ID}" STREQUAL "_MSVC")
 	macro(CompilationWarningAsError)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX ") 
 	endmacro()
