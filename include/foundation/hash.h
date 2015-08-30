@@ -85,27 +85,6 @@ namespace foundation {
 			return ei;
 		}
 
-		template<typename T> void erase(Hash<T> &h, const FindResult &fr)
-		{
-			if (fr.data_prev == END_OF_LIST)
-				h._hash[fr.hash_i] = h._data[fr.data_i].next;
-			else
-				h._data[fr.data_prev].next = h._data[fr.data_i].next;
-
-			if (fr.data_i == array::size(h._data) - 1) {
-				array::pop_back(h._data);
-				return;
-			}
-
-			h._data[fr.data_i] = h._data[array::size(h._data) - 1];
-			FindResult last = find(h, h._data[fr.data_i].key);
-
-			if (last.data_prev != END_OF_LIST)
-				h._data[last.data_prev].next = fr.data_i;
-			else
-				h._hash[last.hash_i] = fr.data_i;
-		}
-
 		template<typename T> FindResult find(const Hash<T> &h, uint64_t key)
 		{
 			FindResult fr;
@@ -166,6 +145,28 @@ namespace foundation {
 				h._data[fr.data_prev].next = i;
 			return i;
 		}
+
+        template<typename T> void erase( Hash<T> &h, const FindResult &fr )
+        {
+            if (fr.data_prev == END_OF_LIST)
+                h._hash[ fr.hash_i ] = h._data[ fr.data_i ].next;
+            else
+                h._data[ fr.data_prev ].next = h._data[ fr.data_i ].next;
+
+            if (fr.data_i == array::size( h._data ) - 1)
+            {
+                array::pop_back( h._data );
+                return;
+            }
+
+            h._data[ fr.data_i ] = h._data[ array::size( h._data ) - 1 ];
+            FindResult last = find( h, h._data[ fr.data_i ].key );
+
+            if (last.data_prev != END_OF_LIST)
+                h._data[ last.data_prev ].next = fr.data_i;
+            else
+                h._hash[ last.hash_i ] = fr.data_i;
+        }
 
 		template<typename T> uint32_t make(Hash<T> &h, uint64_t key)
 		{
