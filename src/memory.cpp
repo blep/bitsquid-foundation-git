@@ -1,4 +1,5 @@
 #include <foundation/memory.h>
+#include <foundation/cast.h>
 
 #include <stdlib.h>
 #include <assert.h>
@@ -147,6 +148,7 @@ namespace {
 		}
 
 		virtual void *allocate(uint32_t size, uint32_t align) {
+            assert( size < INT32_MAX );
 			assert(align % 4 == 0);
 			size = ((size + 3)/4)*4;
 
@@ -157,7 +159,7 @@ namespace {
 
 			// Reached the end of the buffer, wrap around to the beginning.
 			if (p > _end) {
-				h->size = (_end - (char *)h) | 0x80000000u;
+				h->size = size_cast( (_end - (char *)h) | 0x80000000u );
 				
 				p = _begin;
 				h = (Header *)p;
@@ -169,7 +171,7 @@ namespace {
 			if (in_use(p))
 				return _backing.allocate(size, align);
 
-			fill(h, data, p - (char *)h);
+			fill(h, data, size_cast(p - (char *)h));
 			_allocate = p;
 			return data;
 		}
@@ -190,7 +192,7 @@ namespace {
 
 			// Advance the free pointer past all free slots.
 			while (_free != _allocate) {
-				Header *h = (Header *)_free;
+				h = (Header *)_free;
 				if ((h->size & 0x80000000u) == 0)
 					break;
 
@@ -202,11 +204,11 @@ namespace {
 
 		virtual uint32_t allocated_size(void *p) {
 			Header *h = header(p);
-			return h->size - ((char *)p - (char *)h);
+			return size_cast(h->size - ((char *)p - (char *)h));
 		}
 
 		virtual uint32_t total_allocated() {
-			return _end - _begin;
+			return size_cast(_end - _begin);
 		}
 	};
 

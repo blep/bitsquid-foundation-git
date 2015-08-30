@@ -1,6 +1,7 @@
 set(INC_DIR ../include/foundation)
 set( PUBLIC_HEADERS 
     ${INC_DIR}/array.h
+    ${INC_DIR}/cast.h
     ${INC_DIR}/collection_types.h
     ${INC_DIR}/hash.h
     ${INC_DIR}/math_types.h

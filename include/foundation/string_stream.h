@@ -2,6 +2,7 @@
 
 #include "collection_types.h"
 #include "array.h"
+#include "cast.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -67,7 +68,7 @@ namespace foundation
 
 		inline Buffer & operator<<(Buffer &b, const char *s)
 		{
-			return push(b, s, strlen(s));
+			return push(b, s, size_cast( strlen(s) ));
 		}
 
 		inline Buffer & operator<<(Buffer &b, float f)

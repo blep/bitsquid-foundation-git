@@ -61,7 +61,7 @@ namespace {
 			v2 = v;
 			ASSERT(v2[0] == 3);
 			
-			ASSERT(array::end(v) - array::begin(v) == array::size(v));
+			ASSERT(size_cast(array::end(v) - array::begin(v)) == array::size(v));
 			ASSERT(*array::begin(v) == 3);
 			array::pop_back(v);
 			ASSERT(array::empty(v));
@@ -167,13 +167,13 @@ namespace {
 	void test_murmur_hash()
 	{
 		const char *s = "test_string";
-		uint64_t h = murmur_hash_64(s, strlen(s), 0);
+		uint64_t h = murmur_hash_64(s, size_cast(strlen(s)), 0);
 		ASSERT(h == 0xe604acc23b568f83ull);
 	}
 
 	void test_pointer_arithmetic()
 	{
-		const char check = (char)0xfe;
+		const char check = '\xfe';
 		const unsigned test_size = 128;
 
 		TempAllocator512 ta;
@@ -236,8 +236,8 @@ namespace {
 			ASSERT(queue::size(q) == 10);
 			for (int i=0; i<10; ++i)
 				ASSERT(q[i] == i+1);
-			queue::consume(q, queue::end_front(q) - queue::begin_front(q));
-			queue::consume(q, queue::end_front(q) - queue::begin_front(q));
+			queue::consume(q, size_cast(queue::end_front(q) - queue::begin_front(q)));
+			queue::consume(q, size_cast(queue::end_front(q) - queue::begin_front(q)));
 			ASSERT(queue::size(q) == 0);
 		}
 	}
