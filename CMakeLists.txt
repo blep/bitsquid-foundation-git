@@ -15,10 +15,10 @@ if (COVERALLS) # Coverall service integration (https://github.com/JoakimSoderber
     
     file(GLOB_RECURSE COVER_SOURCES include/*.h include/*.hpp src/*.cpp src/*.c src/*.h src/*.hpp test/*.cpp test/*.c test/*.h test/*.hpp)
 
-# Setup the coveralls target and tell it to gather
-# coverage data for all the lib sources.
+    # Setup the coveralls target and tell it to gather
+    # coverage data for all the lib sources.
 	coveralls_setup(
-        "${LIB_SRC}" 
+        "${COVER_SOURCES}" 
         ${COVERALLS_UPLOAD}                 
         "${CMAKE_CURRENT_SOURCE_DIR}/coveralls-cmake/cmake")
 endif (COVERALLS)
