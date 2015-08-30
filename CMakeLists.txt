@@ -7,7 +7,8 @@ project( Foundation CXX )
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH}) 
 option(COVERALLS "Generate coveralls data" OFF)
 
-if (COVERALLS) # Coverall service integration (https://github.com/JoakimSoderberg/coveralls-cmake)
+# Coverall service integration (https://github.com/JoakimSoderberg/coveralls-cmake)
+if (COVERALLS AND (CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX) AND (CMAKE_BUILD_TYPE STREQUAL "Debug"))
     set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} 
         ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/coveralls-cmake/cmake)
     include(Coveralls)
@@ -21,7 +22,7 @@ if (COVERALLS) # Coverall service integration (https://github.com/JoakimSoderber
         "${COVER_SOURCES}" 
         ${COVERALLS_UPLOAD}                 
         "${CMAKE_CURRENT_SOURCE_DIR}/coveralls-cmake/cmake")
-endif (COVERALLS)
+endif ()
 
 include(EnableLatestCppStandard)
 EnableLatestCppStandard()
