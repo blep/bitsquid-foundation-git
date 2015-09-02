@@ -1,9 +1,13 @@
 #include <foundation/memory.h>
 #include <foundation/cast.h>
 
+#include <type_traits> // for aligned_storage
 #include <stdlib.h>
 #include <assert.h>
 #include <new>
+#if defined(_DEBUG) && defined(_MSC_VER)
+#include <crtdbg.h>
+#endif
 
 namespace {
 	using namespace foundation;
@@ -152,7 +156,9 @@ namespace {
 			assert(align % 4 == 0);
 			size = ((size + 3)/4)*4;
 
-			char *p = _allocate;
+            assert( _allocate < _end );
+
+            char *p = _allocate;
 			Header *h = (Header *)p;
 			char *data = (char *)data_pointer(h, align);
 			p = data + size;
@@ -171,7 +177,11 @@ namespace {
 			if (in_use(p))
 				return _backing.allocate(size, align);
 
+            assert( p <= _end );
+
 			fill(h, data, size_cast(p - (char *)h));
+            if ( p == _end )
+                p = _begin;
 			_allocate = p;
 			return data;
 		}
@@ -213,8 +223,11 @@ namespace {
 	};
 
 	struct MemoryGlobals {
-		static const int ALLOCATOR_MEMORY = sizeof(MallocAllocator) + sizeof(ScratchAllocator);
-		char buffer[ALLOCATOR_MEMORY];
+        struct Guts {
+            MallocAllocator mallocAllocator_;
+            ScratchAllocator scratchAllocator_;
+        };
+        std::aligned_storage<sizeof(Guts), std::alignment_of<Guts>::value>::type storage_;
 
 		MallocAllocator *default_allocator;
 		ScratchAllocator *default_scratch_allocator;
@@ -230,10 +243,14 @@ namespace foundation
 	namespace memory_globals
 	{
 		void init(uint32_t temporary_memory) {
-			char *p = _memory_globals.buffer;
-			_memory_globals.default_allocator = new (p) MallocAllocator();
-			p += sizeof(MallocAllocator);
-			_memory_globals.default_scratch_allocator = new (p) ScratchAllocator(*_memory_globals.default_allocator, temporary_memory);
+            // Enable run-time memory check for debug builds.
+#if defined(_DEBUG) && defined(_MSC_VER)
+            _CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+#endif
+            MemoryGlobals::Guts *guts = reinterpret_cast<MemoryGlobals::Guts *>( &(_memory_globals.storage_) );
+			_memory_globals.default_allocator = new (&(guts->mallocAllocator_)) MallocAllocator();
+			_memory_globals.default_scratch_allocator = new ( &( guts->scratchAllocator_) ) ScratchAllocator(
+                *_memory_globals.default_allocator, temporary_memory);
 		}
 
 		Allocator &default_allocator() {

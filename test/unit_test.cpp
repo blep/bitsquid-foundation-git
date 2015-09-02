@@ -93,6 +93,11 @@ namespace {
 		for (int i=0; i<100; ++i)
 			a.deallocate(pointers[i]);
 
+        // Reserve all scratch space in a single block
+        const uint32_t sizeOfHeader = 4;
+        void *pExactMaxSize1 = a.allocate( 256 * 1024 - sizeOfHeader, 4 );
+        a.deallocate( pExactMaxSize1 );
+
 		memory_globals::shutdown();
 	}
 
