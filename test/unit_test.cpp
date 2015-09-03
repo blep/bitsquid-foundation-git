@@ -110,6 +110,10 @@ namespace {
         for (int i = 0; i<512; ++i)
             a.deallocate( pointers[ 511-i ] );  // reverse order deallocation
 
+        // Delegate allocation request too large to the backing allocator
+        void *pTooBig = a.allocate( 2 * 256 * 1024, 4 );
+        a.deallocate( pTooBig );
+
 		memory_globals::shutdown();
 	}
 
