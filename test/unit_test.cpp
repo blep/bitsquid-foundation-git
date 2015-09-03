@@ -80,7 +80,7 @@ namespace {
 
 		char *p = (char *)a.allocate(10*1024);
 
-		char *pointers[100];
+		char *pointers[512];
 		for (int i=0; i<100; ++i)
 			pointers[i] = (char *)a.allocate(1024);
 		for (int i=0; i<100; ++i)
@@ -97,6 +97,18 @@ namespace {
         const uint32_t sizeOfHeader = 4;
         void *pExactMaxSize1 = a.allocate( 256 * 1024 - sizeOfHeader, 4 );
         a.deallocate( pExactMaxSize1 );
+
+        // Reserve all scracth space twice and check delegation to backing allocator
+        void *pExactMaxSize2 = a.allocate( 256 * 1024 - sizeOfHeader, 4 );
+        void *pExactMaxSize3 = a.allocate( 256 * 1024 - sizeOfHeader, 4 );
+        a.deallocate( pExactMaxSize2 );
+        a.deallocate( pExactMaxSize3 );
+
+        // Allocates small chuck beyond capacity
+        for (int i = 0; i<512; ++i)
+            pointers[ i ] = (char *)a.allocate( 1024 );
+        for (int i = 0; i<512; ++i)
+            a.deallocate( pointers[ 511-i ] );  // reverse order deallocation
 
 		memory_globals::shutdown();
 	}

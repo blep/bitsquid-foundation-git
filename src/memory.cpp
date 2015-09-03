@@ -114,7 +114,17 @@ namespace {
 	/// 
 	/// If the ring buffer is exhausted, the scratch allocator will use its backing
 	/// allocator to allocate memory instead.
-	class ScratchAllocator : public Allocator
+    ///
+    /// Internal States:
+    /// - Header size is ored with 0x8000000 to indicate the block is free.
+    /// - _allocate: next available block to use for allocation.
+    /// - _free: oldest allocated block that has not been freed.
+    ///
+    /// Invariant used to test if a block is free:
+    /// free_ == allocate_: block is free
+    /// allocate_ > free_: block is free if p < free_
+    /// allocate_ < free_: block is free if p < free  ||  p >= allocate
+    class ScratchAllocator : public Allocator
 	{
 		Allocator &_backing;
 		
@@ -165,7 +175,7 @@ namespace {
 
 			// Reached the end of the buffer, wrap around to the beginning.
 			if (p > _end) {
-				h->size = size_cast( (_end - (char *)h) | 0x80000000u );
+				h->size = size_cast(_end - (char *)h) | 0x80000000u;
 				
 				p = _begin;
 				h = (Header *)p;
@@ -174,14 +184,13 @@ namespace {
 			}
 			
 			// If the buffer is exhausted use the backing allocator instead.
-			if (in_use(p))
+            bool isFull = (p >= _end);
+			if (in_use(p)  ||  isFull)
 				return _backing.allocate(size, align);
 
             assert( p <= _end );
 
 			fill(h, data, size_cast(p - (char *)h));
-            if ( p == _end )
-                p = _begin;
 			_allocate = p;
 			return data;
 		}
