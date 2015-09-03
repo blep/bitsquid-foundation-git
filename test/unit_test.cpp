@@ -114,6 +114,10 @@ namespace {
         void *pTooBig = a.allocate( 2 * 256 * 1024, 4 );
         a.deallocate( pTooBig );
 
+        // Check support for small alignment (array of char)
+        void *pString = a.allocate( 12, 1 );
+        a.deallocate( pString );
+
 		memory_globals::shutdown();
 	}
 

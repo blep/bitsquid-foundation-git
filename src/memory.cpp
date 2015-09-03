@@ -163,7 +163,8 @@ namespace {
 
 		virtual void *allocate(uint32_t size, uint32_t align) {
             assert( size < INT32_MAX );
-			assert(align % 4 == 0);
+            assert(align > 0);
+            align = (align+3)/4*4;
 			size = ((size + 3)/4)*4;
 
             assert( _allocate < _end );
