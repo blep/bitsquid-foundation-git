@@ -71,6 +71,15 @@ namespace {
 			ASSERT(array::size(v) == 100);
 		}
 
+        {
+            Allocator &scratch = memory_globals::default_scratch_allocator();
+            Array<char> v( scratch );
+            ASSERT( array::size( v ) == 0 );
+            array::push_back( v, 'a' );
+            ASSERT( array::size( v ) == 1 );
+            ASSERT( v[ 0 ] == 'a' );
+        }
+
 		memory_globals::shutdown();
 	}
 
