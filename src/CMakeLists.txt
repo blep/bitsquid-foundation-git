@@ -1,6 +1,7 @@
 set(INC_DIR ../include/foundation)
 set( PUBLIC_HEADERS 
     ${INC_DIR}/array.h
+    ${INC_DIR}/assert.h
     ${INC_DIR}/cast.h
     ${INC_DIR}/collection_types.h
     ${INC_DIR}/hash.h
@@ -10,6 +11,7 @@ set( PUBLIC_HEADERS
     ${INC_DIR}/murmur_hash.h
     ${INC_DIR}/queue.h
     ${INC_DIR}/snprintf_msvc.h
+    ${INC_DIR}/sorted_range.h
     ${INC_DIR}/string_stream.h
     ${INC_DIR}/temp_allocator.h
     ${INC_DIR}/types.h
@@ -17,9 +19,11 @@ set( PUBLIC_HEADERS
 
 source_group( "api" FILES ${PUBLIC_HEADERS} ) 
 SET( SOURCES 
+    assert.cpp
     memory.cpp
     murmur_hash.cpp
     string_stream.cpp
+    windows_lean.h
    )
 
 ADD_DEFINITIONS(-DUNICODE -D_UNICODE)

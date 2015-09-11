@@ -201,9 +201,21 @@ namespace {
 	void test_murmur_hash()
 	{
 		const char *s = "test_string";
-		uint64_t h = murmur_hash_64(s, size_cast(strlen(s)), 0);
-		ASSERT(h == 0xe604acc23b568f83ull);
-	}
+        {
+		    uint64_t h = murmur_hash_64(s, size_cast(strlen(s)), 0);
+		    ASSERT(h == 0xe604acc23b568f83ull);
+        }
+
+        {
+            uint32_t h = murmur3_hash_32( s, size_cast( strlen( s ) ), 0 );
+            ASSERT( h == 0xda041198u );
+        }
+
+        {
+            uint64_t h = murmur3_hash_64( s, size_cast( strlen( s ) ), 0 );
+            ASSERT( h == 0x898a3df17f25c396ull );
+        }
+    }
 
 	void test_pointer_arithmetic()
 	{

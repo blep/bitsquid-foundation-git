@@ -85,7 +85,11 @@ namespace foundation
 		inline const void *pointer_add(const void *p, uint32_t bytes);
 		inline void *pointer_sub(void *p, uint32_t bytes);
 		inline const void *pointer_sub(const void *p, uint32_t bytes);
-	}
+        template<typename T, typename O>
+        inline const T *ptr_from_byte_offset( const void *basePtr, O offsetInByte );
+        template<typename T, typename O>
+        inline T *ptr_from_byte_offset( void *basePtr, O offsetInByte );
+    }
 
 	// ---------------------------------------------------------------
 	// Inline function implementations
@@ -123,4 +127,21 @@ namespace foundation
 	{
 		return (const void*)((const char *)p - bytes);
 	}
+
+    template<typename T, typename O>
+    inline const T *memory::ptr_from_byte_offset( const void *basePtr, O offsetInByte )
+    {
+        const char *p = reinterpret_cast<const char *>( basePtr );
+        p += offsetInByte;
+        return reinterpret_cast<const T *>( p );
+    }
+
+    template<typename T, typename O>
+    inline T *memory::ptr_from_byte_offset( void *basePtr, O offsetInByte )
+    {
+        char *p = reinterpret_cast<char *>( basePtr );
+        p += offsetInByte;
+        return reinterpret_cast<const T *>( p );
+    }
+
 }
