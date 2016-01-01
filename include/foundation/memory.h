@@ -144,4 +144,82 @@ namespace foundation
         return reinterpret_cast<const T *>( p );
     }
 
+    // ---------------------------------------------------------------
+    // Inline UniquePtr function implementations
+    // ---------------------------------------------------------------
+
+    template<typename T> inline UniquePtr<T>::UniquePtr()
+        : value_( nullptr )
+        , allocator_( nullptr )
+    {
+    }
+
+    template<typename T> inline UniquePtr<T>::UniquePtr( T *value, Allocator &allocator )
+        : value_( value )
+        , allocator_( &allocator )
+    {
+    }
+
+    template<typename T> inline UniquePtr<T>::UniquePtr( UniquePtr &&other )
+        : value_( other.value_ )
+        , allocator_( other.allocator_ )
+    {
+        other.value_ = nullptr;
+        other.allocator_ = nullptr;
+    }
+
+    template<typename T> inline UniquePtr<T> &UniquePtr<T>::operator =( UniquePtr<T> &&other )
+    {
+        if ( value_ != nullptr )
+        {
+            value_->~T();
+            allocator_->deallocate( value_ );
+        }
+        value_ = other.value_;
+        allocator_ = other.allocator_;
+        other.value_ = nullptr;
+        other.allocator_ = nullptr;
+        return *this;
+    }
+
+    template<typename T> inline UniquePtr<T>::~UniquePtr()
+    {
+        reset();
+    }
+
+    template<typename T> inline T *UniquePtr<T>::get()
+    {
+        return value_;
+    }
+
+    template<typename T> inline T *UniquePtr<T>::release()
+    {
+        T *value = value_;
+        value_ = nullptr;
+        allocator_ = nullptr;
+        return value;
+    }
+
+    template<typename T> inline T *UniquePtr<T>::operator ->() const
+    {
+        return value_;
+    }
+
+    template<typename T> inline void UniquePtr<T>::reset()
+    {
+        if (value_ != nullptr)
+        {
+            value_->~T();
+            allocator_->deallocate( value_ );
+            value_ = nullptr;
+            allocator_ = nullptr;
+        }
+    }
+
+    template<typename T> inline UniquePtr<T>::operator bool() const
+    {
+        return value_ != nullptr;
+    }
+
+
 }

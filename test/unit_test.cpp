@@ -11,6 +11,7 @@
 #include <string.h>
 #include <assert.h>
 #include <algorithm>
+#include <utility>
 
 #define ASSERT(x) if ( !(x) ) reportAssertFailure( #x, __FILE__, __LINE__ )
 
@@ -78,6 +79,17 @@ namespace {
             array::push_back( v, 'a' );
             ASSERT( array::size( v ) == 1 );
             ASSERT( v[ 0 ] == 'a' );
+        }
+
+        {
+            Allocator &scratch = memory_globals::default_scratch_allocator();
+            Array<int> v1( scratch );
+            Array<int> v2( scratch );
+            array::push_back( v1, 1234 );
+            array::push_back( v2, 4567 );
+            array::swap(v1, v2);
+            ASSERT( v1[ 0 ] == 4567 );
+            ASSERT( v2[ 0 ] == 1234 );
         }
 
 		memory_globals::shutdown();
@@ -286,8 +298,99 @@ namespace {
 			queue::consume(q, size_cast(queue::end_front(q) - queue::begin_front(q)));
 			ASSERT(queue::size(q) == 0);
 		}
-	}
+        memory_globals::shutdown();
+    }
+
+    struct IntWrapper
+    {
+        IntWrapper( int value, bool &alive )
+            : value_( value )
+            , alive_( alive )
+        {
+            alive_ = true;
+        }
+
+        ~IntWrapper()
+        {
+            alive_ = false;
+            value_ = -1;
+        }
+
+        operator int() const
+        {
+            return value_;
+        }
+
+        int get() const
+        {
+            return value_;
+        }
+
+
+        int value_;
+        bool &alive_;
+    };
+
+    static void test_unique_ptr()
+    {
+        memory_globals::init();
+        {
+            UniquePtr<int> a;
+            ASSERT( !a );
+            ASSERT( static_cast<bool>(a) == false );
+            ASSERT( a.get() == nullptr );
+            ASSERT( a.release() == nullptr );
+            ASSERT( a.release() == nullptr );
+            a.reset();
+            ASSERT( a.get() == nullptr );
+
+            TempAllocator1024 ta;
+            bool bAlive = false;
+            IntWrapper *pb = MAKE_NEW( ta, IntWrapper, 1234, bAlive );
+            UniquePtr<IntWrapper> b( pb, ta );
+            ASSERT( bAlive );
+            ASSERT( b );
+            ASSERT( !!b );
+            ASSERT( b.get() == pb );
+            ASSERT( b->get() == 1234 );
+
+            IntWrapper *pb2 = b.release();
+            ASSERT( bAlive );
+            ASSERT( pb == pb2 );
+            // move assignment
+            b = std::move( UniquePtr<IntWrapper>( pb2, ta ) );
+            ASSERT( b );
+            ASSERT( b.get() == pb );
+            ASSERT( bAlive );
+
+            // reset with != null
+            b.reset();
+            ASSERT( b.get() == nullptr );
+            ASSERT( !bAlive );
+
+            // move constructor
+            bool cAlive = false;
+            UniquePtr<IntWrapper> c( MAKE_NEW( ta, IntWrapper, 5678, cAlive ), ta );
+            ASSERT( cAlive );
+            ASSERT( c->get() == 5678 );
+            UniquePtr<IntWrapper> d{ std::move(c) };
+            ASSERT( cAlive );
+            ASSERT( d->get() == 5678 );
+            ASSERT( !c );
+            ASSERT( c.get() == nullptr );
+
+            // check that UniquePtr call destructor
+            bool eAlive = false;
+            {
+                UniquePtr<IntWrapper> e( MAKE_NEW( ta, IntWrapper, 5678, eAlive ), ta );
+                ASSERT( eAlive );
+            }
+            ASSERT( !eAlive );
+        }
+        memory_globals::shutdown();
+    }
 }
+
 
 int main(int, char **)
 {
@@ -301,5 +404,6 @@ int main(int, char **)
 	test_pointer_arithmetic();
 	test_string_stream();
 	test_queue();
+    test_unique_ptr();
 	return 0;
 }
