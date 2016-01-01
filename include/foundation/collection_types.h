@@ -12,50 +12,64 @@
 /// classes.
 namespace foundation
 {
-	/// Dynamically resizable array of POD objects.
-	template<typename T> struct Array
-	{
-		Array(Allocator &a);
-		~Array();
-		Array(const Array &other);
-		Array &operator=(const Array &other);
-		
-		T &operator[](uint32_t i);
-		const T &operator[](uint32_t i) const;
+    namespace array 
+    {
+        /// Dynamically resizable array of POD objects.
+        template<typename T> struct Array
+        {
+            Array(Allocator &a);
+            ~Array();
+            Array(const Array &other);
+            Array &operator=(const Array &other);
+        
+            T &operator[](uint32_t i);
+            const T &operator[](uint32_t i) const;
 
-		Allocator *_allocator;
-		uint32_t _size;
-		uint32_t _capacity;
-		T *_data;
-	};
+            Allocator *_allocator;
+            uint32_t _size;
+            uint32_t _capacity;
+            T *_data;
+        };
+    } // namespace array 
 
-	/// A double-ended queue/ring buffer.
-	template <typename T> struct Queue
-	{
-		Queue(Allocator &a);
+    using array::Array;
 
-		T &operator[](uint32_t i);
-		const T &operator[](uint32_t i) const;
 
-		Array<T> _data;
-		uint32_t _size;
-		uint32_t _offset;
-	};
+    namespace queue {
+        /// A double-ended queue/ring buffer.
+        template <typename T> struct Queue
+        {
+            Queue(Allocator &a);
 
-	/// Hash from an uint64_t to POD objects. If you want to use a generic key
-	/// object, use a hash function to map that object to an uint64_t.
-	template<typename T> struct Hash
-	{
-	public:
-		Hash(Allocator &a);
-		
-		struct Entry {
-			uint64_t key;
-			uint32_t next;
-			T value;
-		};
+            T &operator[](uint32_t i);
+            const T &operator[](uint32_t i) const;
 
-		Array<uint32_t> _hash;
-		Array<Entry> _data;
-	};
+            Array<T> _data;
+            uint32_t _size;
+            uint32_t _offset;
+        };
+    } // namespace queue {
+
+    using queue::Queue;
+
+    namespace hash {
+        /// Hash from an uint64_t to POD objects. If you want to use a generic key
+        /// object, use a hash function to map that object to an uint64_t.
+        template<typename T> struct Hash
+        {
+        public:
+            Hash(Allocator &a);
+        
+            struct Entry {
+                uint64_t key;
+                uint32_t next;
+                T value;
+            };
+
+            Array<uint32_t> _hash;
+            Array<Entry> _data;
+        };
+    } // namespace hash {
+
+    using hash::Hash;
 }

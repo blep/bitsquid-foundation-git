@@ -68,9 +68,18 @@ namespace {
 			ASSERT(array::empty(v));
 
 			for (int i=0; i<100; ++i)
-				array::push_back(v, i);
-			ASSERT(array::size(v) == 100);
-		}
+				array::push_back(v, i*3);
+            ASSERT( array::size( v ) == 100 );
+            for (int i = 0; i<100; ++i)
+                ASSERT(v[i] == i*3);
+            // for each support
+            int index = 0;
+            for ( auto value: v )
+            {
+                ASSERT( value == index*3 );
+                ++index;
+            }
+        }
 
         {
             Allocator &scratch = memory_globals::default_scratch_allocator();
@@ -170,16 +179,33 @@ namespace {
 				hash::set(h, i, i*i);
 			for (int i=0; i<100; ++i)
 				ASSERT(hash::get(h,i,0) == i*i);
-			hash::remove(h, 1000);
+            // remove
+            hash::remove(h, 1000);
 			ASSERT(!hash::has(h, 1000));
 			hash::remove(h, 2000);
 			ASSERT(hash::get(h,1000,0) == 0);
 			for (int i=0; i<100; ++i)
 				ASSERT(hash::get(h,i,0) == i*i);
-			hash::clear(h);
+            // clear
+            hash::clear(h);
 			for (int i=0; i<100; ++i)
 				ASSERT(!hash::has(h,i));
 		}
+        // for each support
+        {
+            TempAllocator128 ta;
+            Hash<int> h( ta );
+            uint64_t expectedSum = 0;
+            for (int i = 0; i<100; ++i)
+            {
+                hash::set( h, i, i*i );
+                expectedSum += i + i*i;
+            }
+            uint64_t actualSum = 0;
+            for (const Hash<int>::Entry &entry : h)
+                actualSum += entry.key + entry.value;
+            ASSERT( expectedSum == actualSum );
+        }
 		memory_globals::shutdown();
 	}
 
