@@ -49,6 +49,9 @@ namespace foundation {
 		template<typename T> void push_back(Array<T> &a, const T &item);
 		/// Pops the last item from the array. The array cannot be empty.
 		template<typename T> void pop_back(Array<T> &a);
+
+        // Swap two arrays
+        template<typename T> void swap( Array<T> &a, Array<T> &b );
 	}
 
 	namespace array
@@ -120,7 +123,14 @@ namespace foundation {
 		{
 			a._size--;
 		}
-	}
+
+        template<typename T> inline void swap( Array<T> &a, Array<T> &b )
+        {
+            Array<T> temp = a;
+            a = b;
+            b = temp;
+        }
+    }
 
 	template <typename T>
 	inline Array<T>::Array(Allocator &allocator) : _allocator(&allocator), _size(0), _capacity(0), _data(0) {}
@@ -160,4 +170,5 @@ namespace foundation {
 	{
 		return _data[i];
 	}
+
 }
