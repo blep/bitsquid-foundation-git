@@ -227,11 +227,17 @@ namespace foundation {
 			return hash_internal::find_or_fail(h, key) != hash_internal::END_OF_LIST;
 		}
 
-		template<typename T> const T &get(const Hash<T> &h, uint64_t key, const T &deffault)
-		{
-			const uint32_t i = hash_internal::find_or_fail(h, key);
-			return i == hash_internal::END_OF_LIST ? deffault : h._data[i].value;
-		}
+        template<typename T> const T &get( const Hash<T> &h, uint64_t key, const T &deffault )
+        {
+            const uint32_t i = hash_internal::find_or_fail( h, key );
+            return i == hash_internal::END_OF_LIST ? deffault : h._data[ i ].value;
+        }
+
+        template<typename T> T *try_get( Hash<T> &h, uint64_t key, T *deffault=nullptr )
+        {
+            const uint32_t i = hash_internal::find_or_fail( h, key );
+            return i == hash_internal::END_OF_LIST ? deffault : &(h._data[ i ].value);
+        }
 
 		template<typename T> void set(Hash<T> &h, uint64_t key, const T &value)
 		{
