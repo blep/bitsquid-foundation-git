@@ -92,6 +92,7 @@ namespace {
 
         {
             Allocator &scratch = memory_globals::default_scratch_allocator();
+            // swap
             Array<int> v1( scratch );
             Array<int> v2( scratch );
             array::push_back( v1, 1234 );
@@ -99,6 +100,23 @@ namespace {
             array::swap(v1, v2);
             ASSERT( v1[ 0 ] == 4567 );
             ASSERT( v2[ 0 ] == 1234 );
+
+            // move ctor
+            Array<int> v3( std::move( v1 ) );
+            ASSERT( begin(v1) == nullptr );
+            ASSERT( size(v3) == 1 );
+            ASSERT( v3[0] == 4567 );
+
+            // move assign
+            Array<int> v4( scratch );
+            array::push_back( v4, 123 );
+            array::push_back( v4, 456 );
+            v4 = std::move( v2 );
+            ASSERT( begin( v2 ) == nullptr );
+            ASSERT( size( v4 ) == 1 );
+            ASSERT( v4[ 0 ] == 1234 );
+
+            std::swap(v1, v2);
         }
 
 		memory_globals::shutdown();
@@ -168,17 +186,25 @@ namespace {
 		{
 			TempAllocator128 ta;
 			Hash<int> h(ta);
-			ASSERT(hash::get(h,0,99) == 99);
-			ASSERT(!hash::has(h, 0));
+            ASSERT( hash::get( h, 0, 99 ) == 99 );
+            int v99 = 99;
+            ASSERT( *hash::try_get( h, 0, &v99 ) == 99 );
+            ASSERT( hash::try_get( h, 0 ) == nullptr );
+            ASSERT(!hash::has(h, 0));
 			hash::remove(h, 0);
 			hash::set(h, 1000, 123);
 			ASSERT(hash::get(h,1000,0) == 123);
 			ASSERT(hash::get(h,2000,99) == 99);
+            ASSERT( *hash::try_get( h, 1000, &v99 ) == 123 );
+            ASSERT( *hash::try_get( h, 1000 ) == 123 );
 
 			for (int i=0; i<100; ++i)
 				hash::set(h, i, i*i);
 			for (int i=0; i<100; ++i)
-				ASSERT(hash::get(h,i,0) == i*i);
+            {
+                ASSERT( hash::get( h, i, 0 ) == i*i );
+                ASSERT( *hash::try_get( h, i ) == i*i );
+            }
             // remove
             hash::remove(h, 1000);
 			ASSERT(!hash::has(h, 1000));
@@ -252,6 +278,14 @@ namespace {
         {
             uint64_t h = murmur3_hash_64( s, size_cast( strlen( s ) ), 0 );
             ASSERT( h == 0x898a3df17f25c396ull );
+        }
+
+        {
+            int64_t int64s[2] = { 0x1234567887654321ll, 0x7877665544332211 };
+            uint64_t h = murmur3_hash_64( int64s, sizeof(int64s), 0 );
+            ASSERT( h == 0x28b8dc7a31a58300ull );
+            uint64_t h2 = murmur3_hash_64_mix( int64s[0], int64s[1], 0 );
+            ASSERT( h2 == 0x28b8dc7a31a58300ull );
         }
     }
 

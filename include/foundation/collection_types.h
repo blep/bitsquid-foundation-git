@@ -19,9 +19,11 @@ namespace foundation
         {
             Array(Allocator &a);
             ~Array();
-            Array(const Array &other);
-            Array &operator=(const Array &other);
-        
+            Array( const Array &other );
+            Array &operator=( const Array &other );
+            Array( Array &&other );
+            Array &operator=( Array &&other );
+
             T &operator[](uint32_t i);
             const T &operator[](uint32_t i) const;
 
@@ -55,6 +57,7 @@ namespace foundation
     namespace hash {
         /// Hash from an uint64_t to POD objects. If you want to use a generic key
         /// object, use a hash function to map that object to an uint64_t.
+        /// @param T must be default constructable
         template<typename T> struct Hash
         {
         public:

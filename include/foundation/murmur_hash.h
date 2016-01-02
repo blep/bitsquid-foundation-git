@@ -15,6 +15,9 @@ namespace foundation
     /// (get low 64bits of 128 bits hash)
     uint64_t murmur3_hash_64( const void *key, uint32_t len, uint64_t seed );
 
+    /// Special cased implementation of the 64 bit MurmurHash3 function taking two 64 bits integer as input.
+    uint64_t murmur3_hash_64_mix( uint64_t key1, uint64_t key2, uint64_t seed );
+
 
 
 }

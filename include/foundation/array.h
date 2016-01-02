@@ -126,9 +126,20 @@ namespace foundation {
 
         template<typename T> inline void swap( Array<T> &a, Array<T> &b )
         {
-            Array<T> temp = a;
-            a = b;
-            b = temp;
+            Allocator *allocator = a._allocator;
+            uint32_t size = a._size;
+            uint32_t capacity = a._capacity;
+            T *data = a._data;
+
+            a._allocator = b._allocator;
+            a._size = b._size;
+            a._capacity = b._capacity;
+            a._data = b._data;
+
+            b._allocator = allocator;
+            b._size = size;
+            b._capacity = capacity;
+            b._data = data;
         }
     }
 
@@ -158,6 +169,30 @@ namespace foundation {
 		std::memcpy(_data, other._data, sizeof(T)*n);
 		return *this;
 	}
+
+    template <typename T>
+    Array<T>::Array( Array &&other )
+        : _allocator( other._allocator )
+        , _size( other._size )
+        , _capacity( other._capacity )
+        , _data( other._data )
+    {
+        other._data = nullptr;
+        //other._size = 0;
+        //other._capacity = 0;
+    }
+
+    template <typename T>
+    Array<T> &Array<T>::operator=( Array<T> &&other )
+    {
+        _allocator->deallocate( _data );
+        _allocator = other._allocator;
+        _size = other._size;
+        _capacity = other._capacity;
+        _data = other._data;
+        other._data = nullptr;
+        return *this;
+    }
 
 	template <typename T>
 	inline T & Array<T>::operator[](uint32_t i)
