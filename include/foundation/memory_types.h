@@ -18,12 +18,15 @@ namespace foundation
         T *get();
         T *release();
         T *operator ->() const;
+        T &operator *() const;
         void reset();
 
         explicit operator bool() const;
 
     private:
+        using DestructorFn = void (*)( T &ptr );
         T *value_;
         Allocator *allocator_;
+        DestructorFn destructor_;
     };
 }

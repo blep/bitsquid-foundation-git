@@ -54,7 +54,7 @@ namespace foundation
 	#define MAKE_NEW(a, T, ...)		(new ((a).allocate(sizeof(T), alignof(T))) T(__VA_ARGS__))
 
 	/// Frees an object allocated with MAKE_NEW.
-	#define MAKE_DELETE(a, T, p)	do {if (p) {(p)->~T(); a.deallocate(p);}} while (0)
+	#define MAKE_DELETE(a, T, p)	do { if (p) { ::foundation::memory::destruct( *p ); a.deallocate(p); } } while (0)
 
 	/// Functions for accessing global memory data.
 	namespace memory_globals {
@@ -89,6 +89,8 @@ namespace foundation
         inline const T *ptr_from_byte_offset( const void *basePtr, O offsetInByte );
         template<typename T, typename O>
         inline T *ptr_from_byte_offset( void *basePtr, O offsetInByte );
+        template<typename T> 
+        inline void destruct( T &self );
     }
 
 	// ---------------------------------------------------------------
@@ -141,7 +143,13 @@ namespace foundation
     {
         char *p = reinterpret_cast<char *>( basePtr );
         p += offsetInByte;
-        return reinterpret_cast<const T *>( p );
+        return reinterpret_cast<T *>( p );
+    }
+
+    template<typename T>
+    inline void memory::destruct( T &self )
+    {
+        self.~T();
     }
 
     // ---------------------------------------------------------------
@@ -151,34 +159,40 @@ namespace foundation
     template<typename T> inline UniquePtr<T>::UniquePtr()
         : value_( nullptr )
         , allocator_( nullptr )
+        , destructor_( nullptr )
     {
     }
 
     template<typename T> inline UniquePtr<T>::UniquePtr( T *value, Allocator &allocator )
         : value_( value )
         , allocator_( &allocator )
+        , destructor_( &memory::destruct )
     {
     }
 
     template<typename T> inline UniquePtr<T>::UniquePtr( UniquePtr &&other )
         : value_( other.value_ )
         , allocator_( other.allocator_ )
+        , destructor_( other.destructor_ )
     {
         other.value_ = nullptr;
         other.allocator_ = nullptr;
+        other.destructor_ = nullptr;
     }
 
     template<typename T> inline UniquePtr<T> &UniquePtr<T>::operator =( UniquePtr<T> &&other )
     {
         if ( value_ != nullptr )
         {
-            value_->~T();
+            destructor_( *value_ );
             allocator_->deallocate( value_ );
         }
         value_ = other.value_;
         allocator_ = other.allocator_;
+        destructor_ = other.destructor_;
         other.value_ = nullptr;
         other.allocator_ = nullptr;
+        other.destructor_ = destructor_;
         return *this;
     }
 
@@ -205,11 +219,17 @@ namespace foundation
         return value_;
     }
 
+    template<typename T> inline T &UniquePtr<T>::operator *() const
+    {
+        return *value_;
+    }
+
+
     template<typename T> inline void UniquePtr<T>::reset()
     {
         if (value_ != nullptr)
         {
-            value_->~T();
+            destructor_( *value_ );
             allocator_->deallocate( value_ );
             value_ = nullptr;
             allocator_ = nullptr;
