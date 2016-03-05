@@ -2,6 +2,7 @@
 
 #include "types.h"
 #include "memory_types.h"
+#include <new> // placement new
 
 namespace foundation
 {
@@ -52,6 +53,9 @@ namespace foundation
 
 	/// Creates a new object of type T using the allocator a to allocate the memory.
 	#define MAKE_NEW(a, T, ...)		(new ((a).allocate(sizeof(T), alignof(T))) T(__VA_ARGS__))
+
+    /// Returns a UniquePtr owning a new object of type T using the allocator a to allocate the memory
+    #define MAKE_UNIQUE(alloc, T, ...) foundation::UniquePtr< T >( new (foundation::allocate<T>( alloc )) T(__VA_ARGS__), alloc )
 
 	/// Frees an object allocated with MAKE_NEW.
 	#define MAKE_DELETE(a, T, p)	do { if (p) { ::foundation::memory::destruct( *p ); a.deallocate(p); } } while (0)
@@ -241,5 +245,9 @@ namespace foundation
         return value_ != nullptr;
     }
 
+    template<typename T> inline T* allocate( Allocator &allocator )
+    {
+        return static_cast<T *>( allocator.allocate(sizeof(T), alignof(T)) );
+    }
 
 }
