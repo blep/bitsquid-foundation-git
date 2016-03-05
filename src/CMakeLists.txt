@@ -5,7 +5,9 @@ set( PUBLIC_HEADERS
     ${INC_DIR}/cast.h
     ${INC_DIR}/collection_types.h
     ${INC_DIR}/hash.h
+    ${INC_DIR}/hstring.h
     ${INC_DIR}/math_types.h
+    ${INC_DIR}/math.h
     ${INC_DIR}/memory.h
     ${INC_DIR}/memory_types.h
     ${INC_DIR}/murmur_hash.h
@@ -20,6 +22,7 @@ set( PUBLIC_HEADERS
 source_group( "api" FILES ${PUBLIC_HEADERS} ) 
 SET( SOURCES 
     assert.cpp
+    math.cpp
     memory.cpp
     murmur_hash.cpp
     string_stream.cpp
