@@ -184,9 +184,10 @@ namespace foundation
         other.destructor_ = nullptr;
     }
 
-    template<typename T> inline UniquePtr<T> &UniquePtr<T>::operator =( UniquePtr<T> &&other )
+    template<typename T>
+    inline UniquePtr<T> &UniquePtr<T>::operator =( UniquePtr &&other )
     {
-        if ( value_ != nullptr )
+        if (value_ != nullptr)
         {
             destructor_( *value_ );
             allocator_->deallocate( value_ );
@@ -196,7 +197,25 @@ namespace foundation
         destructor_ = other.destructor_;
         other.value_ = nullptr;
         other.allocator_ = nullptr;
-        other.destructor_ = destructor_;
+        other.destructor_ = nullptr;
+        return *this;
+    }
+
+    template<typename T>
+    template<typename O>
+    inline UniquePtr<T> &UniquePtr<T>::operator =( UniquePtr<O> &&other )
+    {
+        if (value_ != nullptr)
+        {
+            destructor_( *value_ );
+            allocator_->deallocate( value_ );
+        }
+        value_ = other.value_;
+        allocator_ = other.allocator_;
+        destructor_ = &memory::destruct;
+        other.value_ = nullptr;
+        other.allocator_ = nullptr;
+        other.destructor_ = nullptr;
         return *this;
     }
 

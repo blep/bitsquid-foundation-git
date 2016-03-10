@@ -7,12 +7,16 @@ namespace foundation
     template<typename T>
     class UniquePtr
     {
+        template<typename O>
+        friend class UniquePtr;
     public:
         UniquePtr();
         UniquePtr( T *value, Allocator &allocator );
 //        template<typename T2> UniquePtr( UniquePtr<T2> &&other );
         UniquePtr( UniquePtr &&other );
         UniquePtr &operator =( UniquePtr &&other );
+        template<typename O>
+        UniquePtr &operator =( UniquePtr<O> &&other );
         ~UniquePtr();
 
         T *get();
